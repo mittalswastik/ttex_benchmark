@@ -1,0 +1,31 @@
+    #!/bin/bash
+
+    # Set the number of times you want to run the command
+    iterations=6
+
+    # Set the base command
+    uninstallCommand="make clean"
+    buildCommand="make"
+    runCommand="./kernel"
+    printCommand1="/home/swastik/dev/ttex/llvm/ttex_implementation/benchmarks/testbench/./test"
+    printCommand2="/home/swastik/dev/ttex/llvm/ttex_implementation/benchmarks/testbench/./test2"
+
+    # Run the command multiple times with different output files
+    for ((i=2; i<=$iterations; i++)); do
+        output="output_$i.txt"
+        output2="output_time_$i.txt"
+        output3="ttex_$i"
+        output4="test_$i"
+        output5="test2_$i"
+        echo "Running iteration $i, output file: $output"
+        $uninstallCommand
+        $buildCommand
+        $printCommand2 > $output5
+        $runCommand > $output
+        cat $output | grep "##################################### evaluated time value in ns is" > $output2	
+        sed 's/[^0-9]*\([0-9]\+\)[^0-9]*/\1/g' $output2  > $output3
+        $printCommand1 > $output4
+    done
+
+    echo "All iterations completed."
+

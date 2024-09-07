@@ -7,6 +7,7 @@
 #include <iostream>
 #include <string.h>
 #include <stdlib.h>
+#include <omp.h>
 #include "benchmark.h"
 
 std::chrono::high_resolution_clock::time_point start,end;
@@ -40,6 +41,10 @@ void usage(char *exec)
   std::cout << "         Default: N=1\n";
 }
 int main(int argc, char **argv) {
+
+  omp_set_num_threads(4);
+  int threads_num = omp_get_max_threads();
+  std::cout << "Max number of threads are:" <<std::endl;
 
   if ((argc != 1) && (argc !=  3))
     {

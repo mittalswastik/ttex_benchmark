@@ -516,14 +516,19 @@ void initRadiusSearch(const std::vector<Point> &points, bool**  sqr_distances, c
 	int n = points.size();
 	*sqr_distances = (bool*) malloc(n * n * sizeof(bool));
 	float sqr_radius = radius * radius;
-	#pragma omp parallel for default(none) shared(points, sqr_distances, n, sqr_radius) schedule(dynamic)
-	for (int j = 0; j < n; j++){
-		for (int i = 0; i < n; i++){
-			float dx = points[i].x - points[j].x;
-			float dy = points[i].y - points[j].y;
-			float dz = points[i].z - points[j].z;
-			float sqr_dist = dx*dx + dy*dy + dz*dz;
-			(*sqr_distances)[j*n+i] = sqr_dist <= sqr_radius;
+	#pragma omp parallel default(none) shared(points, sqr_distances, n, sqr_radius) 
+	{
+		#pragma omp for schedule(static)
+		{
+			for (int j = 0; j < n; j++){
+				for (int i = 0; i < n; i++){
+					float dx = points[i].x - points[j].x;
+					float dy = points[i].y - points[j].y;
+					float dz = points[i].z - points[j].z;
+					float sqr_dist = dx*dx + dy*dy + dz*dz;
+					(*sqr_distances)[j*n+i] = sqr_dist <= sqr_radius;
+				}
+			}
 		}
 	}
 }
@@ -579,9 +584,14 @@ void extractEuclideanClusters (
 	// Create a bool vector of processed point indices, and initialize it to false
 	bool* processed = (bool*) malloc(sizeof(bool) * cloud.size());
 	int cloud_size = cloud.size();
-	#pragma omp parallel for default(none) shared(cloud_size, processed)
-	for(int i = 0; i < cloud_size; ++i){
-		processed[i] = false;
+	#pragma omp parallel default(none) shared(cloud_size, processed) 
+	{
+		#pragma omp for 
+		{
+			for(int i = 0; i < cloud_size; ++i){
+				processed[i] = false;
+			}
+		}
 	}
 	std::vector<int> nn_indices;
 	// compute the pairwise distance matrix
@@ -946,13 +956,13 @@ void euclidean_clustering::init() {
 	input_file.exceptions ( std::ifstream::failbit | std::ifstream::badbit );
 	output_file.exceptions ( std::ifstream::failbit | std::ifstream::badbit );
 	try {
-		input_file.open("../../../data/ec_input.dat", std::ios::binary);
+		input_file.open("data/ec_input.dat", std::ios::binary);
 	} catch (std::ifstream::failure) {
 		std::cerr << "Error opening the input data file" << std::endl;
 		exit(-3);
 	}
 	try {
-		output_file.open("../../../data/ec_output.dat", std::ios::binary);
+		output_file.open("data/ec_output.dat", std::ios::binary);
 	}  catch (std::ifstream::failure) {
 		std::cerr << "Error opening the output data file" << std::endl;
 		exit(-3);
