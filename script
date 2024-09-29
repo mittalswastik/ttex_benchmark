@@ -8,7 +8,7 @@
     buildCommand="make"
     runCommand="./kernel"
     printCommand1="/home/swastik/dev/ttex/llvm/ttex_implementation/benchmarks/testbench/./test"
-    printCommand2="/home/swastik/dev/ttex/llvm/ttex_implementation/benchmarks/testbench/./test2"
+    printCommand2="/home/swastik/dev/ttex/llvm/ttex_implementation/benchmarks/testbench/./test_2"
 
     # Run the command multiple times with different output files
     for ((i=2; i<=$iterations; i++)); do

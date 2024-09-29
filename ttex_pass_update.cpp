@@ -343,6 +343,9 @@ extern "C" void on_ompt_callback_ompt_test(int parallel_region_id, int sub_id, i
   //std::cout<<"current thread"<<std::endl;
   thread_info* temp_thread_data = (thread_info*) current_thread->ptr;
 
+  timespec temp = temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et;
+  temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et = returnKernelSubTime(temp_thread_data->fd, temp);
+
   // if(temp_thread_data->id == 0){
   //   printf("=============================== attack delay ================================\n");
   //   struct timespec deadline;
@@ -405,8 +408,8 @@ extern "C" void on_ompt_callback_ompt_test(int parallel_region_id, int sub_id, i
   if(temp_thread_data->pid == -1){
     /**TO DO*/
     // push back time for sequential region outside parallel region - // maybe we won't need sid now
-    timespec temp = temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et;
-    temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et = returnKernelSubTime(temp_thread_data->fd, temp);
+    //timespec temp = temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et;
+    //temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et = returnKernelSubTime(temp_thread_data->fd, temp);
     if(loop_id == -1){
       temp_thread_data->thread_current_timeout.push_back(para_seq);
     }
@@ -420,8 +423,8 @@ extern "C" void on_ompt_callback_ompt_test(int parallel_region_id, int sub_id, i
   }
 
   else {
-    timespec temp = temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et;
-    temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et = returnKernelSubTime(temp_thread_data->fd, temp);
+    // timespec temp = temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et;
+    // temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et = returnKernelSubTime(temp_thread_data->fd, temp);
 
     if(loop_id != -1){
       temp_thread_data->thread_current_timeout.push_back(loop_execution[parallel_region_id][loop_id].expected_execution);
@@ -838,6 +841,10 @@ on_ompt_callback_thread_end(
   thread_info* temp_thread_data = (thread_info*) current_thread->ptr;
   // if(temp_current_thread->id == 2)
   //  sleep(5);
+
+  if(temp_thread_data->id != 0){
+    temp_thread_data->pid = -1; // at thread end all worker threads are out of parallel begin
+  }
 
   timespec temp = temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et;
   temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et = returnKernelSubTime(temp_thread_data->fd, temp);
@@ -1259,7 +1266,7 @@ void ompt_logDataToFile(){
         for(int k = 0 ; k < p_data[i][j].ref ; k++){
           unsigned long int wcet_temp = 0;
           if(!timespec_compare(parallel_region[i][j].expected_execution[k].wcet, max_timeout)){
-            unsigned long int wcet_temp = (parallel_region[i][j].expected_execution[k].wcet.tv_sec*1000000000)+(parallel_region[i][j].expected_execution[k].wcet.tv_nsec);
+            wcet_temp = (parallel_region[i][j].expected_execution[k].wcet.tv_sec*1000000000)+(parallel_region[i][j].expected_execution[k].wcet.tv_nsec);
           }
 
           if(p_data[i][j].wcet_ns < wcet_temp){
