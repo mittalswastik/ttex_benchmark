@@ -485,6 +485,7 @@ on_ompt_callback_thread_begin(
   if(temp_thread_data->id == 0){
     temp_thread_data->pid = -1; // this thread begin has executed before parallel begin
   }
+
   std::cout<<"----------------------- thread begin 1_2---------------------"<<std::endl;
   temp_thread_data->thread_current_timeout = std::vector<timeout_node>();
   std::cout<<"thread data time out log size is : "<<temp_thread_data->thread_current_timeout.size()<<std::endl;
@@ -571,7 +572,6 @@ on_ompt_callback_thread_begin(
   // printf("-------------------------- thread begin ends ------------------------\n");
 }
 
-
 extern "C" void
 on_ompt_callback_parallel_begin(
   ompt_data_t *encountering_task_data,
@@ -631,6 +631,10 @@ on_ompt_callback_work(
 
   ompt_data_t *current_thread = ompt_get_thread_data();
   thread_info* temp_thread_data = (thread_info*) current_thread->ptr;
+
+  timespec temp = temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et;
+  temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et = returnKernelSubTime(temp_thread_data->fd, temp);
+
   temp_thread_data->pid = parallel_data->value;
 
   // temp_thread_data->data = parallel_data;
@@ -645,8 +649,8 @@ on_ompt_callback_work(
     std::cout<<"Display section count to confirm if changed: "<<count<<std::endl;
     std::cout<<"=============== ref is: "<<parallel_region[parallel_data->value][sub_parallel_id].ref<<std::endl;
 
-    timespec temp = temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et;
-    temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et = returnKernelSubTime(temp_thread_data->fd, temp);
+    // timespec temp = temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et;
+    // temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et = returnKernelSubTime(temp_thread_data->fd, temp);
   
     vector<timeout_node> temp_node;
 
@@ -680,7 +684,7 @@ on_ompt_callback_work(
       temp_thread_data->thread_current_timeout.push_back(work_begin);
       temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].timer_set_flag = true;
       temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].loop_id = 993;
-      //max_timer = true;
+      max_timer = true;
       //resetTimer(max_timeout, temp_thread_data->fd); // thread will directly enter callback work end or sleep
       
       /* have to add implcit barrier callback waitime here and in implcit barrier reset to maxtimeout*/
@@ -717,9 +721,6 @@ on_ompt_callback_work(
     //   sleep(3);
     // }
     std::cout<<"Thread id is **************** "<<temp_thread_data->id<<std::endl;
-
-    timespec temp = temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et;
-    temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et = returnKernelSubTime(temp_thread_data->fd, temp);
     std::cout<<"timer is been set for callback work"<<std::endl;
     temp_thread_data->thread_current_timeout.push_back(work_end);
     temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].parallel_region_id = parallel_data->value;
@@ -999,7 +1000,7 @@ extern "C" void ompt_initializeTimeoutData(){
   para_seq.loop_id = -1;
   para_seq.parallel_region_id = -1;
   para_seq.sub_region_id = -1;
-  if(para_seq_profiler.wcet_ns != 0){
+  if(para_seq_profiler.wcet_ns == 0){
     para_seq.wcet = max_timeout;
   }
 
@@ -1572,7 +1573,7 @@ extern "C" void ompt_finalize(ompt_data_t* data)
       outputFile << t << "\t\t" << value[j].parallel_region_id << "\t" << value[j].sub_region_id << "\t" << value[j].loop_id << "\t"<<key<<std::endl;
       //std::cout<< "### evaluated time in sec: " << value[j].et.tv_sec << std::endl;
       
-      std::cout<<"##################################### evaluated time value in ns is: "<< t<<"Parallel and sub id and loop id is: "<<value[j].parallel_region_id<<" "<<value[j].sub_region_id<<" "<<value[j].loop_id<<std::endl; //std::fixed << std::setprecision(2) <<t<<std::endl;
+      std::cout<<"##################################### evaluated time value in ns is: "<< t<<"Parallel and sub id and loop id is: "<<value[j].parallel_region_id<<" "<<value[j].sub_region_id<<" "<<value[j].loop_id<<" "<<key<<std::endl; //std::fixed << std::setprecision(2) <<t<<std::endl;
       
     }
     printf("\n\n\n");

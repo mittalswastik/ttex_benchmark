@@ -1,0 +1,32 @@
+reset
+
+set terminal svg enhanced background rgb 'white'
+
+set style fill solid 0.5 border -1
+#set style boxplot nooutliers
+set style boxplot outliers pointtype 0 
+set style data boxplot
+set boxwidth  0.8
+set pointsize 0.2
+
+unset key
+set border 2
+set xtics ("1" 1, "2" 2, "3" 3, "4" 4, "5" 5) scale 0.0
+set xtics nomirror
+#set ytics 10000
+#set yrange [1000000:10000000000]
+set logscale y
+#set ytics 1
+#set yrange [0:6]
+#set title "Execution Time of Code Regions Evaluated by T-Tex"
+set ylabel "Execution time in ns (log10)"
+set xlabel "Number of T-Tex Iterations: Security Threshold(60000)"
+
+set output "graph_4.svg"
+
+# Plotting each column in the file as separate boxplots
+plot 'ttex_2' using (1):1 with boxplot, \
+     'ttex_3' using (2):1 with boxplot, \
+     'ttex_4' using (3):1 with boxplot, \
+     'ttex_5' using (4):1 with boxplot, \
+     'ttex_6' using (5):1 with boxplot,

@@ -27,22 +27,22 @@ export CFLAGS=${PORTABILITY_FLAGS}
 export CXXFLAGS=${PORTABILITY_FLAGS}
 # export CPPFLAGS=""
 # export CXXCPPFLAGS=""
-export LDFLAGS=-fuse-ld=gold -L${CC_HOME}/lib64 -L${CC_HOME}/lib -Wl,--plugin-opt=--ttex_update_3,--plugin-opt=--nthreads=4,--plugin-opt=--threshold=60000,--plugin-opt=--splitval=50000#,--plugin-opt=--check_file#,--plugin-opt=--set_val,--plugin-opt=--tsys"
+export LDFLAGS=-fuse-ld=gold -L${CC_HOME}/lib64 -L${CC_HOME}/lib -Wl,--plugin-opt=--ttex_update_3,--plugin-opt=--nthreads=6,--plugin-opt=--threshold=60000,--plugin-opt=--splitval=10000,--plugin-opt=--shared_threshold=25,--plugin-opt=--check_file#,--plugin-opt=--set_val#,--plugin-opt=--tsys"
 # export LDFLAGS="-L${CC_HOME}/lib64 -L${CC_HOME}/lib"
 
 all:	kernel checkdata
 
 kernel:	ttex_pass_update.o	main.o	kernel.o
-	$(CXX) -g -v $(CFLAGS) $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) -fuse-ld=gold $^ -o $@
+	$(CXX) -v $(CFLAGS) $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) -fuse-ld=gold $^ -o $@
 
 main.o:	main.cpp
-	$(CXX) -g -fopenmp -c $(CFLAGS) $(CPPFLAGS) $(CXXFLAGS) $< -o $@
+	$(CXX) -fopenmp -c $(CFLAGS) $(CPPFLAGS) $(CXXFLAGS) $< -o $@
 
 kernel.o:	kernel.cpp
-	$(CXX) -g -fopenmp -c $(CFLAGS) $(CPPFLAGS) $(CXXFLAGS) $< -o $@
+	$(CXX) -fopenmp -c $(CFLAGS) $(CPPFLAGS) $(CXXFLAGS) $< -o $@
 
 ttex_pass_update.o:	ttex_pass_update.cpp ttex_pass_update.h
-	$(CXX) -g $(CXXFLAGS) -c $(CFLAGS) $(CPPFLAGS) ttex_pass_update.cpp
+	$(CXX) $(CXXFLAGS) -c $(CFLAGS) $(CPPFLAGS) ttex_pass_update.cpp
 
 checkdata:
 ifeq ($(wildcard data/ec_input.dat),)

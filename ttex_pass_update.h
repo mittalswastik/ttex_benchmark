@@ -50,7 +50,7 @@ uint64_t global_id = 0;
 // int *testing_integer;
 // int **testing_integer_2;
 
-int thread_priority = 10;
+int thread_priority = 99;
 unsigned long int time_val_sec = 20;
 unsigned long int time_val_nsec = 1000*1000*1000;
 
