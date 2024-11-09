@@ -23,6 +23,7 @@
 #include <chrono>
 #include <random>
 #include <omp.h>
+#include <chrono>
 
 using namespace std;
 
@@ -31,6 +32,7 @@ using namespace std;
 #define NSEC_PER_SEC 1000000000
 
 #define max_threads 10
+#define attack_delay 80000
 
 #define omp_for_ref -1
 #define omp_single_ref -2
@@ -50,8 +52,8 @@ uint64_t global_id = 0;
 // int *testing_integer;
 // int **testing_integer_2;
 
-int thread_priority = 99;
-unsigned long int time_val_sec = 20;
+int thread_priority = 10;
+unsigned long int time_val_sec = 200000;
 unsigned long int time_val_nsec = 1000*1000*1000;
 
 typedef struct modified_timer{

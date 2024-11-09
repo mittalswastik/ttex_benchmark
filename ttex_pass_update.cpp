@@ -319,6 +319,22 @@ timespec returnKernelSubTime(int fd, timespec test){
   //temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et = getRegionElapsedTime(temp_2,temp);
 }
 
+void spin_delay() {
+    struct timespec start, current;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+
+    // Calculate the target end time
+    long end_nsec = start.tv_nsec + attack_delay;
+    long end_sec = start.tv_sec + end_nsec / 1000000000;
+    end_nsec %= 1000000000;
+
+    // Busy-wait until the current time reaches the target end time
+    do {
+        clock_gettime(CLOCK_MONOTONIC, &current);
+    } while ((current.tv_sec < end_sec) || 
+             (current.tv_sec == end_sec && current.tv_nsec < end_nsec));
+}
+
 ////////////////////////////////////////////////////////////////////////
 
 // static void countCounter (thread_data *ptr)
@@ -339,24 +355,16 @@ extern "C" void on_ompt_callback_ompt_test(int parallel_region_id, int sub_id, i
 
   //printf("OMPT TEST CALLED %d %d %d\n\n",parallel_region_id,sub_id,loop_id);
 
-  ompt_data_t *current_thread = ompt_get_thread_data();
   //std::cout<<"current thread"<<std::endl;
+  ompt_data_t *current_thread = ompt_get_thread_data();
   thread_info* temp_thread_data = (thread_info*) current_thread->ptr;
+  // std::cout<<"current thread"<<std::endl;
+
+  /**Add Attack Delay Below**/
+  //spin_delay();
 
   timespec temp = temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et;
   temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et = returnKernelSubTime(temp_thread_data->fd, temp);
-
-  // if(temp_thread_data->id == 0){
-  //   printf("=============================== attack delay ================================\n");
-  //   struct timespec deadline;
-  //   clock_gettime(CLOCK_MONOTONIC, &deadline);
-  //   deadline.tv_nsec += 10000;
-  //   if(deadline.tv_nsec >= 1000000000) {
-  //     deadline.tv_nsec -= 1000000000;
-  //     deadline.tv_sec++;
-  //   }
-  //   clock_nanosleep(CLOCK_MONOTONIC,TIMER_ABSTIME,&deadline,NULL);
-  // }
 
   // random_device rd;
   // mt19937 gen(rd());
@@ -454,7 +462,10 @@ extern "C" void on_ompt_callback_ompt_test(int parallel_region_id, int sub_id, i
   test.tv_sec = 0;
   test.tv_nsec = 0;
   temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et = returnKernelSubTime(temp_thread_data->fd,test);
-  resetTimer(temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].wcet,temp_thread_data->fd);
+  /**Just for static evaluation set to max timeout*/
+  resetTimer(max_timeout, temp_thread_data->fd);
+  //resetTimer(temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].wcet,temp_thread_data->fd);
+  
   //get parallel id here
 
   // std::cout<<"================================================================="<<std::endl;
@@ -498,7 +509,7 @@ on_ompt_callback_thread_begin(
   
   int core_id;
   std::cout<<"----------------------- thread begin ---------------------"<<std::endl;
-  core_id = my_core_id()%6;
+  core_id = my_core_id()%2; //%6;
 
   std::cout<<"core used is :"<<core_id<<std::endl;
 
@@ -513,13 +524,13 @@ on_ompt_callback_thread_begin(
   pthread_attr_init(&attr);
 
   int result = pthread_getschedparam(thread, &policy, &param);
-  if (result != 0) {
-    std::cout<<"scheduling policy not retreived"<<std::endl;
-  }
+  // if (result != 0) {
+  //   std::cout<<"scheduling policy not retreived"<<std::endl;
+  // }
 
-  else {
-    std::cout<<"scheduling policy priority is :"<<param.sched_priority<<std::endl; 
-  }
+  // else {
+  //   std::cout<<"scheduling policy priority is :"<<param.sched_priority<<std::endl; 
+  // }
 
   // Set thread attributes to make it a real-time thread
   // pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
@@ -551,12 +562,12 @@ on_ompt_callback_thread_begin(
   thread_data->ptr = temp_thread_data;  // storing the thread data such that accessible to all events
 
   int32_t id = syscall(__NR_gettid);
-  std::cout<<"Thread id and core is"<<id<<" "<<core_id<<std::endl;
+  // std::cout<<"Thread id and core is"<<id<<" "<<core_id<<std::endl;
 
   // thread_data->value = my_next_id();
   ioctl(temp_thread_data->fd, START_TIMER, &id);
 
-  std::cout<<"thread data value "<<temp_thread_data->id<<std::endl;
+  //std::cout<<"thread data value "<<temp_thread_data->id<<std::endl;
 
   thread_data->ptr = temp_thread_data;
   temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].timer_set_flag = true;
@@ -566,7 +577,11 @@ on_ompt_callback_thread_begin(
   temp.tv_sec = 0;
   temp.tv_nsec = 0;
   temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et = returnKernelSubTime(temp_thread_data->fd, temp);
-  resetTimer(temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].wcet,temp_thread_data->fd);
+  
+  /**Just for static evaluation set to max timeout*/
+  resetTimer(max_timeout, temp_thread_data->fd);
+  //resetTimer(temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].wcet,temp_thread_data->fd);
+  
   // if(temp_thread_data->id == 0)
   //sleep(8);
   // printf("-------------------------- thread begin ends ------------------------\n");
@@ -582,19 +597,22 @@ on_ompt_callback_parallel_begin(
   const void *codeptr_ra,
   unsigned int id)
 {
-  std::cout<<"parallel id sent is:" <<id<<std::endl;
+  //std::cout<<"parallel id sent is:" <<id<<std::endl;
   // uint64_t tid = ompt_get_thread_data()->value;
   ompt_data_t *current_thread = ompt_get_thread_data();
   parallel_data->value = id-1;//ompt_get_parallel_info();
-  std::cout<<"Error checking 1"<<std::endl;
+  //std::cout<<"Error checking 1"<<std::endl;
   thread_info* temp_thread_data = (thread_info*) current_thread->ptr;
   temp_thread_data->pid = (int) parallel_data->value;
   temp_thread_data->sid = 0; // first region of the code
-  std::cout<<"Parallel region id is parallel region: "<<parallel_data->value<<std::endl;
+  //std::cout<<"Parallel region id is parallel region: "<<parallel_data->value<<std::endl;
   //para_id_map[parallel_data->value] = id-1; // id I send from clang starts from 1
   //printf("thread data value: %d\n", ((thread_info*) current_thread)->current->parallel_region_id);
 
   /*Un comment the two lines below if */
+
+  /**Attack Delay*/
+  //spin_delay();
 
   timespec temp = temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et;
   temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et = returnKernelSubTime(temp_thread_data->fd, temp);
@@ -603,7 +621,7 @@ on_ompt_callback_parallel_begin(
   // can change to below once considering parallel begin as sub region 0  
   //temp_thread_data->thread_current_timeout.push_back(parallel_region[id-1][0].expected_execution[0]);
   //temp_thread_data->thread_current_timeout.push_back(parallel_begin);
-  std::cout<<"ref value is:"<<parallel_region[0][0].ref<<std::endl;
+  //std::cout<<"ref value is:"<<parallel_region[0][0].ref<<std::endl;
   temp_thread_data->thread_current_timeout.push_back(parallel_region[parallel_data->value][0].expected_execution[0]);
   temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].parallel_region_id = parallel_data->value;
   temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].sub_region_id = 0;
@@ -614,8 +632,10 @@ on_ompt_callback_parallel_begin(
   temp.tv_sec = 0;
   temp.tv_nsec = 0;
   temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et = returnKernelSubTime(temp_thread_data->fd, temp);
-  resetTimer(temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].wcet,temp_thread_data->fd);
-  std::cout<<"-------- end of parallel begin -----------"<<std::endl;
+  //oversubscript delays threads spawning - Just a guess - setting max timeout
+  //resetTimer(temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].wcet,temp_thread_data->fd);
+  //std::cout<<"-------- end of parallel begin -----------"<<std::endl;
+  resetTimer(max_timeout, temp_thread_data->fd);
 }
 
 extern "C"  void
@@ -632,6 +652,9 @@ on_ompt_callback_work(
   ompt_data_t *current_thread = ompt_get_thread_data();
   thread_info* temp_thread_data = (thread_info*) current_thread->ptr;
 
+  /**Attack Delay*/
+  //spin_delay();
+
   timespec temp = temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et;
   temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et = returnKernelSubTime(temp_thread_data->fd, temp);
 
@@ -644,10 +667,10 @@ on_ompt_callback_work(
     temp_thread_data->sid = sub_parallel_id;
 
     //printf("start of work, parallel id, sub_parallel_id%d %d\n", parallel_data->value, sub_parallel_id-1);
-    std::cout<<"Thread id is **************** "<<temp_thread_data->id<<std::endl;
-    std::cout<<"Sub region is **************" <<sub_parallel_id<<std::endl;
-    std::cout<<"Display section count to confirm if changed: "<<count<<std::endl;
-    std::cout<<"=============== ref is: "<<parallel_region[parallel_data->value][sub_parallel_id].ref<<std::endl;
+    // std::cout<<"Thread id is **************** "<<temp_thread_data->id<<std::endl;
+    // std::cout<<"Sub region is **************" <<sub_parallel_id<<std::endl;
+    // std::cout<<"Display section count to confirm if changed: "<<count<<std::endl;
+    // std::cout<<"=============== ref is: "<<parallel_region[parallel_data->value][sub_parallel_id].ref<<std::endl;
 
     // timespec temp = temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et;
     // temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et = returnKernelSubTime(temp_thread_data->fd, temp);
@@ -657,14 +680,14 @@ on_ompt_callback_work(
     bool max_timer = false;
 
     if(parallel_region[parallel_data->value][sub_parallel_id].ref > omp_sections_ref && count != -1){ // -1 count means thread enters but not takes any section will go to work end
-      std::cout<<"count value is:"<<count<<std::endl;
+      //std::cout<<"count value is:"<<count<<std::endl;
       temp_thread_data->thread_current_timeout.push_back(parallel_region[parallel_data->value][sub_parallel_id].expected_execution[count-1]);
       temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].timer_set_flag = true;
       temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].loop_id = 992;
     }
 
     else if (parallel_region[parallel_data->value][sub_parallel_id].ref == omp_for_ref){
-      std::cout<<"value is----------"<<std::endl;
+      //std::cout<<"value is----------"<<std::endl;
       temp_thread_data->thread_current_timeout.push_back(parallel_region[parallel_data->value][sub_parallel_id].expected_execution[0]); // only one vector in other case
       temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].timer_set_flag = true;
       temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].loop_id = 992;
@@ -672,7 +695,7 @@ on_ompt_callback_work(
     }
 
     else if (parallel_region[parallel_data->value][sub_parallel_id].ref == omp_single_ref){
-      std::cout<<"--------------ompt single is detected---------"<<parallel_data->value<<" "<<sub_parallel_id<<std::endl;
+      //std::cout<<"--------------ompt single is detected---------"<<parallel_data->value<<" "<<sub_parallel_id<<std::endl;
       temp_thread_data->thread_current_timeout.push_back(parallel_region[parallel_data->value][sub_parallel_id].expected_execution[0]); // only one vector in other case
       temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].timer_set_flag = true;
       temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].loop_id = 992;
@@ -698,12 +721,14 @@ on_ompt_callback_work(
     }
 
     else {
-      resetTimer(temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].wcet,temp_thread_data->fd);
+      /**Just for static evaluation set to max timeout*/
+      resetTimer(max_timeout, temp_thread_data->fd);
+      //resetTimer(temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].wcet,temp_thread_data->fd);
     }
 
     //sleep(5);
 
-    std::cout<<"checking for error"<<std::endl;
+    //std::cout<<"checking for error"<<std::endl;
 
     // for(int l = 0 ; l < temp_node.size() ; l++){
     //     temp_thread_data->thread_current_timeout.push_back(temp_node[l]);
@@ -713,15 +738,15 @@ on_ompt_callback_work(
   }
 
   else {
-    std::cout<<"--------------callback end---------"<<parallel_data->value<<" "<<sub_parallel_id<<std::endl;
+    //std::cout<<"--------------callback end---------"<<parallel_data->value<<" "<<sub_parallel_id<<std::endl;
     // work end - set the et of the current execution
     //clock_gettime(CLOCK_MONOTONIC, &temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et);
 
     // if(temp_thread_data->id == 4){
     //   sleep(3);
     // }
-    std::cout<<"Thread id is **************** "<<temp_thread_data->id<<std::endl;
-    std::cout<<"timer is been set for callback work"<<std::endl;
+    //std::cout<<"Thread id is **************** "<<temp_thread_data->id<<std::endl;
+    //std::cout<<"timer is been set for callback work"<<std::endl;
     temp_thread_data->thread_current_timeout.push_back(work_end);
     temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].parallel_region_id = parallel_data->value;
     //printf("----------------------------------------- sub region id detected is -----------%d\n",temp_thread_data->sid);
@@ -731,7 +756,10 @@ on_ompt_callback_work(
     temp.tv_sec = 0;
     temp.tv_nsec = 0;
     temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et = returnKernelSubTime(temp_thread_data->fd, temp);
-    resetTimer(temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].wcet,temp_thread_data->fd);
+    
+    /**Just for static evaluation set to max timeout*/
+    resetTimer(max_timeout, temp_thread_data->fd);
+    //resetTimer(temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].wcet,temp_thread_data->fd);
   }
 }
 
@@ -758,6 +786,10 @@ on_ompt_callback_sync_region(
   //   temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et = getRegionElapsedTime(temp_2,temp);
   // }
   timespec temp = temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et;
+  
+  /**Attack Delay*/
+  //spin_delay();
+  
   temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et = returnKernelSubTime(temp_thread_data->fd, temp);
   temp_thread_data->thread_current_timeout.push_back(sync_region);
   temp.tv_sec = 0;
@@ -784,9 +816,12 @@ on_ompt_callback_parallel_end(
   ompt_data_t *current_thread = ompt_get_thread_data();
   thread_info* temp_thread_data = (thread_info*) current_thread->ptr;
   
+  /**Attack Delay*/
+  //spin_delay();
+
   timespec temp = temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et;
   temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et = returnKernelSubTime(temp_thread_data->fd, temp);
-  std::cout<<"--------------- end of parallel region -----------------------"<<parallel_data->value<<std::endl;
+  //std::cout<<"--------------- end of parallel region -----------------------"<<parallel_data->value<<std::endl;
 
   // parallel_end.loop_id = 996;
   //temp_thread_data->thread_current_timeout.push_back(parallel_end);
@@ -803,7 +838,11 @@ on_ompt_callback_parallel_end(
   temp.tv_sec = 0;
   temp.tv_nsec = 0;
   temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et = returnKernelSubTime(temp_thread_data->fd, temp);
-  resetTimer(temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].wcet,temp_thread_data->fd);
+  
+  /**Just for static evaluation set to max timeout*/
+  resetTimer(max_timeout, temp_thread_data->fd);
+  //resetTimer(temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].wcet,temp_thread_data->fd);
+  
   // if(temp_current_thread->id == 0)
    //sleep(10);
 }
@@ -819,10 +858,13 @@ on_ompt_callback_implicit_task(
 ){
   ompt_data_t *current_thread = ompt_get_thread_data();
   thread_info* temp_thread_data = (thread_info*) current_thread->ptr;
+
+  /**Attack Delay*/
+  //spin_delay();
   
   if(endpoint == 2) {
-    printf("=============================== task end ================================%d\n", endpoint);
-    printf("call back task end %d\n", temp_thread_data->id);
+    //printf("=============================== task end ================================%d\n", endpoint);
+    //printf("call back task end %d\n", temp_thread_data->id);
 
     timespec temp = temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et;
     temp_thread_data->thread_current_timeout[temp_thread_data->thread_current_timeout.size()-1].et = returnKernelSubTime(temp_thread_data->fd, temp);
@@ -856,7 +898,7 @@ on_ompt_callback_thread_end(
     log_data[temp_thread_data->id] = temp_thread_data->thread_current_timeout;
   }
 
-  std::cout<<"+++++++++++++++++++++++ log data size: "<<log_data[temp_thread_data->id].size()<<" "<<temp_thread_data->id;
+  //std::cout<<"+++++++++++++++++++++++ log data size: "<<log_data[temp_thread_data->id].size()<<" "<<temp_thread_data->id;
 
   // thread_info* temp = thread_timeout_map[thread_data->value];
   // thread_timeout_map.erase(thread_data->value);
@@ -907,7 +949,7 @@ extern "C" void ompt_initializeTimeoutData(){
 
   ompt_readFileData();
 
-  std::cout<<"completed reading file data"<<std::endl;
+  //std::cout<<"completed reading file data"<<std::endl;
 
   timespec exec_time;
   exec_time.tv_sec = 20;
@@ -974,7 +1016,7 @@ extern "C" void ompt_initializeTimeoutData(){
   work_end.timer_set_flag = false;
   sync_region.timer_set_flag = false;
 
-  std::cout<<"Printing details: no. of parallel regions: "<<parallel_size<<std::endl;
+  //std::cout<<"Printing details: no. of parallel regions: "<<parallel_size<<std::endl;
 
   loop_execution = (loop_details**) malloc(parallel_size*sizeof(loop_details*));
   parallel_region = (details**) malloc(parallel_size*sizeof(details*)); 
@@ -1546,7 +1588,7 @@ extern "C" void ompt_finalize(ompt_data_t* data)
 
     // Check if the file is opened successfully
   if (!outputFile.is_open()) {
-      std::cerr << "Error opening the file." << std::endl;
+      std::cerr << "Error opening the file" << std::endl;
       return; // Exit with an error code
   }
  
@@ -1558,7 +1600,7 @@ extern "C" void ompt_finalize(ompt_data_t* data)
     //printf("------------------------------------------------------------\n");
     //printf("Thread id %d\n\n", key);
     for(int j = 0 ; j < value.size() ; j++){
-       if(value[j].parallel_region_id == -1 || value[j].sub_region_id == thread_begin_id || value[j].sub_region_id == work_end_id || value[j].sub_region_id == sync_id || value[j].sub_region_id == task_end_id)
+       if(value[j].parallel_region_id == -1 || value[j].sub_region_id == thread_begin_id || value[j].sub_region_id == work_end_id || value[j].sub_region_id == sync_id || value[j].sub_region_id == task_end_id || value[j].loop_id == 991)
                     continue; // not logging the 1st iteration sub_id == -1
       // printf("Parallel region: %d\n", value[j].parallel_region_id);
       // printf("Sub region: %d\n", value[j].sub_region_id);
@@ -1579,10 +1621,10 @@ extern "C" void ompt_finalize(ompt_data_t* data)
     printf("\n\n\n");
   }
 
-  ompt_processLogData();  
+  // ompt_processLogData();  
 
-  printf("Checking final\n");
-  std::cout<<std::endl;
+  // printf("Checking final\n");
+  // std::cout<<std::endl;
 }
 
 extern "C" ompt_start_tool_result_t* ompt_start_tool(
@@ -1590,7 +1632,13 @@ extern "C" ompt_start_tool_result_t* ompt_start_tool(
   const char *runtime_version)
 {
   //ompt_test(-1,-1,-1);
+
+  auto start = std::chrono::high_resolution_clock::now();
   ompt_initializeTimeoutData();
   static ompt_start_tool_result_t ompt_start_tool_result = {&ompt_initialize,&ompt_finalize,{.ptr=NULL}};
+  auto end = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double> elapsed = end - start;
+  std::cout << "+++++++++++= Elapsed time initialization time ++++++++++++++++: " << elapsed.count() << " seconds" << std::endl;
   return &ompt_start_tool_result;
+  // return nullptr;
 }

@@ -56,16 +56,17 @@ def plot_boxplots(filenames, output_file, xlabel, ylabel, xtick_labels):
     plt.savefig(output_file)
 
 # List of input files (each file can have different numbers of values)
-filenames = ['ttex_2', 'ttex_3', 'ttex_4', 'ttex_5', 'ttex_6']
+filenames = ['ttex_6', 'ttex_10000', 'ttex_20000', 'ttex_40000', 'ttex_80000', 'ttex_tsys', "ttex_kernel_6", "ttex_traffic_kernel_1", "ttex_traffic_kernel_2", "ttex_traffic_kernel_3"]#, 'ttex_200000']#, 'ttex_6', 'ttex_7'] #, 'ttex_8']#, 'ttex_9', 'ttex_10']
 
 # X-axis tick labels
-xtick_labels = ["1", "2", "3", "4", "5"]
+xtick_labels = ["1", "2", "3", "4", "5", "6", "7"]#, "7"]#, "8", "9"]#, "10"]
 
 # Plot settings
-xlabel = "Number of T-Tex Iterations: Security Threshold: 60000 (10^4 <= 60000 <= 10^5)"
+#xlabel = "Number of T-Tex Iterations: Security Threshold: 60us"
+xlabel = "1.T-Tex (No Attack)   2. 10us    3. 20us   4. 40us  5. 80us  6. T-SYS (No Attack) 7."
 ylabel = "Execution time in ns (log10)"
 #ylabel = "Execution time in ns"
-output_file = "boxplot_output_shared_lib_secure_5.png"
+output_file = "attack_4.png"
 y_tick_interval = 100000
 
 # Generate the plot
