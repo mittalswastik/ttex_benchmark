@@ -2,23 +2,16 @@
 
 void ompt_readFileData(){
 
-  std::cout<<"Loading 0"<<std::endl;
-
-  // l_data.clear();
-  // p_data.clear();
-
-  printf("Loading\n");
-
   std::vector< std::vector<loop_details_pass> > l_data_temp;
   std::vector< std::vector<para_details> > p_data_temp;
 
   std::ifstream inFile("/home/swastik/dev/ttex_benchmark/data_log.txt", std::ios::binary);
 
-  std::cout<<"file data read"<<std::endl;
+  //std::cout<<"file data read"<<std::endl;
 
     if (inFile) {
         // Read the data from the file
-        std::cout<<"file data read"<<std::endl;
+        //std::cout<<"file data read"<<std::endl;
         size_t vectorSizeRow;
         inFile.read(reinterpret_cast<char*>(&vectorSizeRow), sizeof(vectorSizeRow));
         l_data_temp.resize(vectorSizeRow);
@@ -31,7 +24,7 @@ void ompt_readFileData(){
           }
         }
 
-        std::cout<<"read the loop details"<<std::endl;
+        //std::cout<<"read the loop details"<<std::endl;
 
         size_t vectorSize2Row;
         inFile.read(reinterpret_cast<char*>(&vectorSize2Row), sizeof(vectorSize2Row));
@@ -48,7 +41,7 @@ void ompt_readFileData(){
         inFile.read(reinterpret_cast<char*>(&loop_seq_profiler), sizeof(loop_seq_details));
         inFile.read(reinterpret_cast<char*>(&para_seq_profiler), sizeof(para_seq_details));
 
-        std::cout<<"read the para details"<<std::endl;
+       // std::cout<<"read the para details"<<std::endl;
 
         inFile.close();
         
@@ -57,7 +50,7 @@ void ompt_readFileData(){
         l_data_size = (int*) malloc(l_data_temp.size() * sizeof(int));
         p_data_size = (int*) malloc(p_data_temp.size() * sizeof(int));
 
-        std::cout<<"allocated sizes: "<<p_data_temp.size()<<std::endl;
+       // std::cout<<"allocated sizes: "<<p_data_temp.size()<<std::endl;
 
         // for (const auto& item : l_data_temp) {
         //   for(const loop_details_pass& item: item) {
@@ -81,11 +74,11 @@ void ompt_readFileData(){
         //   }
         // }
 
-        std::cout<<"=================================================================================================="<<std::endl;
-        std::cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<std::endl;
-        std::cout<<"=================================================================================================="<<std::endl;
+        // std::cout<<"=================================================================================================="<<std::endl;
+        // std::cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<std::endl;
+        // std::cout<<"=================================================================================================="<<std::endl;
 
-        std::cout<<"parallel region details printed: \n"<<std::endl;
+        // std::cout<<"parallel region details printed: \n"<<std::endl;
 
         l_data = (loop_details_pass**) malloc(l_data_temp.size() * sizeof(loop_details_pass*));
         for(int i = 0 ; i < l_data_temp.size() ; i++) {
@@ -104,7 +97,7 @@ void ompt_readFileData(){
           }
         }
 
-        std::cout<<"assigned values to l_data"<<std::endl;
+        //std::cout<<"assigned values to l_data"<<std::endl;
 
         p_data = (para_details**) malloc(p_data_temp.size() * sizeof(para_details*));
         for(int i = 0 ; i < p_data_temp.size() ; i++) {
@@ -121,11 +114,11 @@ void ompt_readFileData(){
           }
         }
 
-        std::cout<<"assigned values to p_data"<<std::endl;
+        // std::cout<<"assigned values to p_data"<<std::endl;
 
-        printf("size of all the things: %d, %d, %d, %d, %d, %d, %d\n", sizeof(l_data), sizeof(*l_data), sizeof(l_data[0]), sizeof(*(l_data[0])), sizeof(loop_details_pass**), sizeof(loop_details_pass*), sizeof(loop_details_pass));
-        printf("size of loop details after reading file: parallel size: %d  first parallel size: %d\n", sizeof(*l_data)/sizeof(loop_details_pass**),sizeof(*(l_data[0]))/sizeof(loop_details_pass));
-        std::cout<<std::endl;
+        // printf("size of all the things: %d, %d, %d, %d, %d, %d, %d\n", sizeof(l_data), sizeof(*l_data), sizeof(l_data[0]), sizeof(*(l_data[0])), sizeof(loop_details_pass**), sizeof(loop_details_pass*), sizeof(loop_details_pass));
+        // printf("size of loop details after reading file: parallel size: %d  first parallel size: %d\n", sizeof(*l_data)/sizeof(loop_details_pass**),sizeof(*(l_data[0]))/sizeof(loop_details_pass));
+        // std::cout<<std::endl;
         //inFile.read(reinterpret_cast<char*>(l_data.data()), vectorSize * sizeof(loop_details_pass));
 
         // // // Print the read data
@@ -173,7 +166,14 @@ receive_timer receiveTime(int fd, timespec t){
   receive_timer rtime;
   rtime.id = syscall(__NR_gettid);
   rtime.time_val_to_sub = t.tv_sec*1000*1000*1000 + t.tv_nsec;
+  unsigned long temp_time = rtime.time_val_to_sub;
   ioctl(fd, GET_TIMER, &rtime);
+  // if(temp_time != 0){
+  //   if(rtime.time_val > 1000000){
+  //     std::cout<<"-------------- time value is greater than 1000000 ---- val: "<<rtime.time_val<<std::endl;
+  //   }
+  // }
+
   return rtime;
 }
 
@@ -486,8 +486,8 @@ on_ompt_callback_thread_begin(
   ompt_thread_t thread_type,
   ompt_data_t *thread_data)
 {
-  std::cout<<"----------------------- thread begin ---------------------"<<std::endl;
-  std::cout<<"thread begin data is : "<<thread_begin.parallel_region_id<<std::endl;
+  // std::cout<<"----------------------- thread begin ---------------------"<<std::endl;
+  // std::cout<<"thread begin data is : "<<thread_begin.parallel_region_id<<std::endl;
   // thread_data->value = my_next_id();
   thread_info* temp_thread_data = (thread_info*) calloc(1,sizeof(thread_info));
   temp_thread_data->id = my_next_id();
@@ -497,21 +497,21 @@ on_ompt_callback_thread_begin(
     temp_thread_data->pid = -1; // this thread begin has executed before parallel begin
   }
 
-  std::cout<<"----------------------- thread begin 1_2---------------------"<<std::endl;
+ // std::cout<<"----------------------- thread begin 1_2---------------------"<<std::endl;
   temp_thread_data->thread_current_timeout = std::vector<timeout_node>();
-  std::cout<<"thread data time out log size is : "<<temp_thread_data->thread_current_timeout.size()<<std::endl;
-  std::cout<<"----------------------- thread begin 2---------------------"<<std::endl;
-  if(temp_thread_data->thread_current_timeout.size() == 0){
-    std::cout<<"----------------------- size empty ---------------------"<<std::endl;
-  }
+  // std::cout<<"thread data time out log size is : "<<temp_thread_data->thread_current_timeout.size()<<std::endl;
+  // std::cout<<"----------------------- thread begin 2---------------------"<<std::endl;
+  // if(temp_thread_data->thread_current_timeout.size() == 0){
+  //   std::cout<<"----------------------- size empty ---------------------"<<std::endl;
+  // }
   temp_thread_data->thread_current_timeout.push_back(thread_begin);
   //createTimer(temp_thread_data);
   
   int core_id;
-  std::cout<<"----------------------- thread begin ---------------------"<<std::endl;
+  //std::cout<<"----------------------- thread begin ---------------------"<<std::endl;
   core_id = my_core_id()%2; //%6;
 
-  std::cout<<"core used is :"<<core_id<<std::endl;
+  //std::cout<<"core used is :"<<core_id<<std::endl;
 
   pthread_t thread;
   pthread_attr_t attr;
@@ -551,6 +551,8 @@ on_ompt_callback_thread_begin(
   //thread_info* temp_thread_data = (thread_info*) malloc(sizeof(thread_info));
 
   // printf("----------------------- thread begin ---------------------\n");
+
+  /***Uncomment for normal kernel*/
   int fd = open("/dev/etx_device", O_RDWR);
   temp_thread_data->fd = fd;
   //temp_thread_data->id = syscall(__NR_gettid);
@@ -558,6 +560,7 @@ on_ompt_callback_thread_begin(
     std::cout<<"Cannot open device file..."<<std::endl;
     return;
   }
+  /******/
 
   thread_data->ptr = temp_thread_data;  // storing the thread data such that accessible to all events
 
@@ -1059,7 +1062,7 @@ extern "C" void ompt_initializeTimeoutData(){
 
     //loop_execution[i] = std::vector<loop_details> (l_data[i].size());
 
-    std::cout<<"Loops in parallel regions are "<<l_data_size[i]<<std::endl;
+    //std::cout<<"Loops in parallel regions are "<<l_data_size[i]<<std::endl;
 
     loop_execution[i] = (loop_details*) malloc(l_data_size[i]*sizeof(loop_details));
 
@@ -1108,11 +1111,11 @@ extern "C" void ompt_initializeTimeoutData(){
 
       timeout_node temp;
 
-      std::cout<<"ref region id: "<<p_data[i][j].ref<<std::endl;
+      //std::cout<<"ref region id: "<<p_data[i][j].ref<<std::endl;
       parallel_region[i][j].ref = p_data[i][j].ref;
 
       if(p_data[i][j].ref == -1000){ // parallel begin
-        std::cout<<"Printing details for parallel begin"<<std::endl;
+        //std::cout<<"Printing details for parallel begin"<<std::endl;
         if(p_data[i][j].wcet_ns == 0) { 
           temp.wcet = max_timeout;
         }
@@ -1131,17 +1134,17 @@ extern "C" void ompt_initializeTimeoutData(){
         temp.sections_id = default_id;
         temp.loop_id = -1;
         temp.timer_set_flag = false;
-        printf("Printing details for parallel begin\n");
+        //printf("Printing details for parallel begin\n");
         parallel_region[i][j].expected_execution = (timeout_node*) malloc(sizeof(timeout_node));
         parallel_region[i][j].expected_execution[0] = temp;
-        printf("Testing reference number %d\n", parallel_region[i][j].ref);
-        printf("Testing code verification %ld\n", parallel_region[i][j].expected_execution[0].wcet.tv_sec);
+        //printf("Testing reference number %d\n", parallel_region[i][j].ref);
+        //printf("Testing code verification %ld\n", parallel_region[i][j].expected_execution[0].wcet.tv_sec);
         // continue;
       }
   
       else if(p_data[i][j].ref > omp_sections_ref){ //sections
 
-          printf("Sections detected\n");
+          //printf("Sections detected\n");
           parallel_region[i][j].expected_execution = (timeout_node*) malloc(p_data[i][j].ref*sizeof(timeout_node));
           for(int k = 0 ; k < p_data[i][j].ref ; k++){
               // here will be another loop here for max vul ... then temp_v will have more noes per section
@@ -1216,8 +1219,8 @@ extern "C" void ompt_initializeTimeoutData(){
     }
   }
 
-  printf("printing details of parallel regions\n");
-  std::cout<<std::endl;
+  //printf("printing details of parallel regions\n");
+  //std::cout<<std::endl;
   // for(int i = 0 ; i < parallel_region.size(); i++){
   //   for(int j = 0 ; j < parallel_region[i].size() ; j++){
   //     printf("reference info: %d\n", parallel_region[i][j].ref);
@@ -1255,14 +1258,14 @@ extern "C" int ompt_initialize(
   // pthread_mutex_init(&lock_t,NULL);
   clock_gettime(CLOCK_MONOTONIC, &start_time);
 
-  printf("Checking initial\n");
+  //printf("Checking initial\n");
   std::cout<<std::endl;
   return 1; //success
 }
 
 void ompt_logDataToFile(){
 
-  printf("Working logDataToFile\n");
+  //printf("Working logDataToFile\n");
   std::cout<<std::endl;
 
   //readFileData(); // not sure why we have to reevaluate again
@@ -1600,8 +1603,9 @@ extern "C" void ompt_finalize(ompt_data_t* data)
     //printf("------------------------------------------------------------\n");
     //printf("Thread id %d\n\n", key);
     for(int j = 0 ; j < value.size() ; j++){
-       if(value[j].parallel_region_id == -1 || value[j].sub_region_id == thread_begin_id || value[j].sub_region_id == work_end_id || value[j].sub_region_id == sync_id || value[j].sub_region_id == task_end_id || value[j].loop_id == 991)
-                    continue; // not logging the 1st iteration sub_id == -1
+      if(value[j].parallel_region_id == -1 || value[j].sub_region_id == thread_begin_id || value[j].sub_region_id == work_end_id || value[j].sub_region_id == sync_id || value[j].sub_region_id == task_end_id || value[j].loop_id == 991)
+        continue; // not logging the 1st iteration sub_id == -1
+      
       // printf("Parallel region: %d\n", value[j].parallel_region_id);
       // printf("Sub region: %d\n", value[j].sub_region_id);
       // printf("sections region: %d\n", value[j].sections_id);
@@ -1614,9 +1618,7 @@ extern "C" void ompt_finalize(ompt_data_t* data)
       unsigned long int t = (value[j].et.tv_sec*1000*1000*1000) + (value[j].et.tv_nsec);
       outputFile << t << "\t\t" << value[j].parallel_region_id << "\t" << value[j].sub_region_id << "\t" << value[j].loop_id << "\t"<<key<<std::endl;
       //std::cout<< "### evaluated time in sec: " << value[j].et.tv_sec << std::endl;
-      
       std::cout<<"##################################### evaluated time value in ns is: "<< t<<"Parallel and sub id and loop id is: "<<value[j].parallel_region_id<<" "<<value[j].sub_region_id<<" "<<value[j].loop_id<<" "<<key<<std::endl; //std::fixed << std::setprecision(2) <<t<<std::endl;
-      
     }
     printf("\n\n\n");
   }

@@ -27,7 +27,7 @@ export CFLAGS=${PORTABILITY_FLAGS}
 export CXXFLAGS=${PORTABILITY_FLAGS}
 # export CPPFLAGS=""
 # export CXXCPPFLAGS=""
-export LDFLAGS=-fuse-ld=gold -L${CC_HOME}/lib64 -L${CC_HOME}/lib -Wl,--plugin-opt=--ttex_update_3,--plugin-opt=--nthreads=6,--plugin-opt=--threshold=60000,--plugin-opt=--splitval=10000,--plugin-opt=--shared_threshold=25,--plugin-opt=--check_file,--plugin-opt=--set_val#,--plugin-opt=--tsys
+export LDFLAGS=-fuse-ld=gold -L${CC_HOME}/lib64 -L${CC_HOME}/lib -Wl,--plugin-opt=--ttex_update_3,--plugin-opt=--nthreads=4,--plugin-opt=--threshold=600000,--plugin-opt=--splitval=100000,--plugin-opt=--shared_threshold=25,--plugin-opt=--check_file,--plugin-opt=--set_val#,--plugin-opt=--tsys,#--plugin-opt=--set_val
 # export LDFLAGS="-L${CC_HOME}/lib64 -L${CC_HOME}/lib"
 
 all:	kernel checkdata

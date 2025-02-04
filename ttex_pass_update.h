@@ -32,7 +32,7 @@ using namespace std;
 #define NSEC_PER_SEC 1000000000
 
 #define max_threads 10
-#define attack_delay 80000
+#define attack_delay 500000
 
 #define omp_for_ref -1
 #define omp_single_ref -2
