@@ -26,9 +26,9 @@ Similar to the T-Tex pass, update the paths in the following lines within the T-
 * Compile and execute the Linux-kernel-Module [code](https://github.ncsu.edu/smittal6/ttex_kernel) for timers and also kernel timer crediting.
 * run ``export LD_LIBRARY_PATH=/path-to-llvm-lib:$LD_LIBRARY_PATH
   * Llvm lib path is generally ~/llvm-project/build/lib
-* run ``./kernel > output_1.txt \
-    cat output_1.txt | grep "##################################### evaluated time value in ns is" > output_time_1.txt \
-    sed 's/[^0-9]*\([0-9]\+\)[^0-9]*/\1/g' output_time_1.txt  > ttex_1
+* run ``./kernel > output_1.txt``
+    ``cat output_1.txt | grep "##################################### evaluated time value in ns is" > output_time_1.txt``
+    ``sed 's/[^0-9]*\([0-9]\+\)[^0-9]*/\1/g' output_time_1.txt  > ttex_1``
   ``
 * For subsequent phases modify the compilation flag in the makefile as mentioned above
   * run ``chmod +x script``
