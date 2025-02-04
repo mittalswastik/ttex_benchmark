@@ -11,7 +11,7 @@ Similar to the T-Tex pass, update the paths in the following lines within the T-
 ### Compilation Phase1
 
 * Phase1 of T-Tex does not provide any analysis from the profiler to the llvm-pass
-  * Update [Makefile](https://github.ncsu.edu/smittal6/ttex_benchmark/blob/master/Makefile#L30) - Remove the check-file plugin
+  * Update [Makefile](https://github.ncsu.edu/smittal6/ttex_benchmark/blob/master/Makefile#L30) - Remove the check-file & set-val plugin
 * Update the paths in the Makefile for [clang](https://github.ncsu.edu/smittal6/ttex_benchmark/blob/master/Makefile#L10)
 * Either copy omp.h & omp_tools.h (generally in ~/llvm-project/build/projects/openmp/runtime/src/) generated after compiling llvm to the same directory as the benchmark or add path using -I flag
   * omp.h - OpenMP runtime library
@@ -35,4 +35,15 @@ Similar to the T-Tex pass, update the paths in the following lines within the T-
   * Sometimes due to large data, there could be copy errors resulting in broken profiler statistics
     * Compile and run each phase individually like phase 1 to ensure successfull execution
   * [Boxplot](https://github.ncsu.edu/smittal6/ttex_benchmark/blob/master/boxplot_2) script can be used to generate graphs
-    * Update according to the number of phases evaluated (if executed without the script)     
+    * Update according to the number of phases evaluated (if executed without the script)
+   
+### Testing various scenarios
+
+#### Testing attack scenarios
+ * Uncomment (set-val)[https://github.ncsu.edu/smittal6/ttex_benchmark/blob/master/Makefile#L30] plugin to stop further evaluation 
+ * Uncomment [spin_delay](https://github.ncsu.edu/smittal6/ttex_benchmark/blob/master/ttex_pass_update.cpp#L364) in all the code regions to introduce spin attack of various intensity
+   * Attack intensity in nanoseconds can be updated [here](https://github.ncsu.edu/smittal6/ttex_benchmark/blob/master/ttex_pass_update.h#L35)
+#### Comparing to T-SYS
+ * Add the t-sys plugin in the [Makefile]((https://github.ncsu.edu/smittal6/ttex_benchmark/blob/master/Makefile#L30)), execute the multiphase approch along with the attack scenarios in the similar fasion
+#### Comparing to with and without Kernel Timer Crediting
+ * See README   
