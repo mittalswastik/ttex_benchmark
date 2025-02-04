@@ -36,6 +36,7 @@ Similar to the T-Tex pass, update the paths in the following lines within the T-
     * Compile and run each phase individually like phase 1 to ensure successfull execution
   * [Boxplot](https://github.ncsu.edu/smittal6/ttex_benchmark/blob/master/boxplot_2) script can be used to generate graphs
     * Update according to the number of phases evaluated (if executed without the script)
+    * run ``gnuplot boxplot_2``
    
 ### Testing various scenarios
 
