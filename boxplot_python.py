@@ -80,10 +80,10 @@ def plot_boxplots(filenames, output_file, xlabel, ylabel, xtick_labels):
 # List of input files (each file can have different numbers of values)
 #['ttex_6', 'ttex_10000', 'ttex_20000', 'ttex_40000', 'ttex_80000', 'ttex_tsys', "ttex_kernel_6", 
 #filenames = ["ttex_traffic_kernel_1", "ttex_kernel_time_2"]#, 'ttex_200000']#, 'ttex_6', 'ttex_7'] #, 'ttex_8']#, 'ttex_9', 'ttex_10']
-filenames = ['ttex_6', 'ttex_10000', 'ttex_20000', 'ttex_40000', 'ttex_500000', 'ttex_tsys2_6']
-#filenames = ['ttex_2', 'ttex_3', 'ttex_4', 'ttex_5', 'ttex_6']#, 'ttex_tsys2_6']
+#filenames = ['ttex_6', 'ttex_10000', 'ttex_20000', 'ttex_40000', 'ttex_500000', 'ttex_tsys2_6']
+filenames = ['ttex_2', 'ttex_3', 'ttex_4', 'ttex_5', 'ttex_6']#, 'ttex_tsys2_6']
 # X-axis tick labels
-xtick_labels = ["1", "2", "3", "4", "5", "6"]#, "8", "9"]#, "10"]
+xtick_labels = ["1", "2", "3", "4", "5"]#, "6"]#, "8", "9"]#, "10"]
 
 # Plot settings
 #xlabel = "Number of T-Tex Iterations: Security Threshold: 60us"
