@@ -22,7 +22,7 @@ set logscale y
 set ylabel "Execution time in ns (log10)"
 set xlabel "Number of T-Tex Iterations: Security Threshold(60000)"
 
-set output "graph_4.svg"
+set output "graph.svg"
 
 # Plotting each column in the file as separate boxplots
 plot 'ttex_2' using (1):1 with boxplot, \
