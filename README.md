@@ -23,7 +23,7 @@ Similar to the T-Tex pass, update the paths in the following lines within the T-
 
 ### Execution
 
-* Compile and execute the Linux-kernel-Module [code](https://github.ncsu.edu/smittal6/ttex_kernel) for timers and also kernel timer crediting.
+* Compile and execute the Linux-kernel-Module [code](https://github.com/mittalswastik/ttex_kernel/tree/master) for timers and also kernel timer crediting.
 * run ``export LD_LIBRARY_PATH=/path-to-llvm-lib:$LD_LIBRARY_PATH
   * Llvm lib path is generally ~/llvm-project/build/lib
 * run ``./kernel > output_1.txt`` \
