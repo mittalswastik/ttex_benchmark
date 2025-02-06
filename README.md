@@ -46,13 +46,21 @@ T-Tex executes ioctl calls to interact with the kernel. Hence, for convenience w
    
 ### Testing various scenarios
 
-#### Testing attack scenarios
- * Uncomment (set-val)[https://github.ncsu.edu/smittal6/ttex_benchmark/blob/master/Makefile#L30] plugin to stop further evaluation 
+After secruity evaluation is completed and code regions are generated.
+* Uncomment (set-val)[https://github.ncsu.edu/smittal6/ttex_benchmark/blob/master/Makefile#L30] plugin to stop further evaluation
+* Comment [omptProcessLogData](https://github.com/mittalswastik/ttex_benchmark/blob/75a9c89654c614d5d57fbd8a5f757d233b1ffc44/ttex_pass_update.cpp#L1626) for any further region generation
+
+#### Testing attack scenarios 
  * Uncomment [spin_delays](https://github.com/mittalswastik/ttex_benchmark/blob/c8ba0f1a783428993f248cd4cd33815597282592/ttex_pass_update.cpp#L364) in all the code regions to introduce spin attack of various intensity
    * Attack intensity in nanoseconds can be updated [here](https://github.com/mittalswastik/ttex_benchmark/blob/c8ba0f1a783428993f248cd4cd33815597282592/ttex_pass_update.h#L35)
+   * Execute application once after compiling and retrieve and save the timing values in a as mentioned above in [Execution](https://github.com/mittalswastik/ttex_benchmark/blob/master/README.md#execution)
+     
 #### Comparing to T-SYS
- * Add the t-sys plugin in the [Makefile](https://github.com/mittalswastik/ttex_benchmark/blob/c8ba0f1a783428993f248cd4cd33815597282592/Makefile#L30), execute the multiphase approch along with the attack scenarios in the similar fasion
+ * Add the t-sys plugin in the [Makefile](https://github.com/mittalswastik/ttex_benchmark/blob/c8ba0f1a783428993f248cd4cd33815597282592/Makefile#L30), execute the multiphase approch to generate code regions and execution time analysis
+ * Run the attack scenario as mentioned before
+   
 #### Comparing to with and without Kernel Timer Crediting
  * See [README](https://github.com/mittalswastik/ttex_kernel/blob/master/README.md)
+
 #### Playing around with security parameters
 [Makefile](https://github.com/mittalswastik/ttex_benchmark/blob/c8ba0f1a783428993f248cd4cd33815597282592/Makefile#L30) has various flags like splitval, threshold which can be updated for initial loop split and security threshold value respectively
