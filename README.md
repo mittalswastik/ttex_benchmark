@@ -41,7 +41,7 @@ T-Tex executes ioctl calls to interact with the kernel. Hence, for convenience w
     * Compile and run each phase individually like phase 1 to ensure successfull execution
   * [Boxplot](https://github.com/mittalswastik/ttex_benchmark/blob/master/boxplot_2) script can be used to generate graphs
     * Update according to the number of phases evaluated (if executed without the script)
-    * run ``gnuplot boxplot_2``
+    * run ``gnuplot boxplot_2`` or run ``python3 boxplot_python``
    
 ### Testing various scenarios
 
