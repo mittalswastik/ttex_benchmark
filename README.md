@@ -10,7 +10,7 @@ Similar to the T-Tex pass, update the paths in the following lines within the T-
 
 ### Execute as root
 
-T-Tex executes ioctl calls to interact with the kernel. Hence, for convenience we start with the root user
+T-Tex executes ioctl calls to interact with the kernel. Hence, for convenience we start with the root user \
 ``sudo -i``
 
 ### Compilation Phase1
