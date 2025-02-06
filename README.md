@@ -8,6 +8,11 @@ Similar to the T-Tex pass, update the paths in the following lines within the T-
 1. [Data Path from Pass to Profiler](https://github.com/mittalswastik/ttex_benchmark/blob/c8ba0f1a783428993f248cd4cd33815597282592/ttex_pass_update.cpp#L8)
 2. [Data Path from Profiler to Pass](https://github.com/mittalswastik/ttex_benchmark/blob/c8ba0f1a783428993f248cd4cd33815597282592/ttex_pass_update.cpp#L1402)
 
+### Execute as root
+
+T-Tex executes ioctl calls to interact with the kernel. Hence, for convenience we start with the root user
+``sudo -i``
+
 ### Compilation Phase1
 
 * Phase1 of T-Tex does not provide any analysis from the profiler to the llvm-pass
