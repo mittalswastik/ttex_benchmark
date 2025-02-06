@@ -52,4 +52,6 @@ T-Tex executes ioctl calls to interact with the kernel. Hence, for convenience w
 #### Comparing to T-SYS
  * Add the t-sys plugin in the [Makefile](https://github.com/mittalswastik/ttex_benchmark/blob/c8ba0f1a783428993f248cd4cd33815597282592/Makefile#L30), execute the multiphase approch along with the attack scenarios in the similar fasion
 #### Comparing to with and without Kernel Timer Crediting
- * See README   
+ * See [README](https://github.com/mittalswastik/ttex_kernel/blob/master/README.md)
+#### Playing around with security parameters
+[Makefile](https://github.com/mittalswastik/ttex_benchmark/blob/c8ba0f1a783428993f248cd4cd33815597282592/Makefile#L30) has various flags like split_val, security_threshold which can be updated for initial loop split and threshold value respectively
