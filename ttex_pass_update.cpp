@@ -1623,7 +1623,7 @@ extern "C" void ompt_finalize(ompt_data_t* data)
     printf("\n\n\n");
   }
 
-  // ompt_processLogData();  
+  ompt_processLogData();  
 
   // printf("Checking final\n");
   // std::cout<<std::endl;
