@@ -1,7 +1,7 @@
 ## DaphneBenchmark
 This is an extended part of the [DaphneBenchmark Suite](https://github.com/esa-tu-darmstadt/daphne-benchmark). As mentioned within the paper, we are specifically interested in the eucledian clustering implementation. Download dataset of any size from the original repositiry or use the medium size dataset in this.
 
-Run: ``https://github.com/mittalswastik/ttex_benchmark.git``
+Run: ``git clone https://github.com/mittalswastik/ttex_benchmark.git`` outside ttex_implementation folder
 
 ### T-Tex Profiler Updates
 
