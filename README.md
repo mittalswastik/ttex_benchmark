@@ -50,7 +50,7 @@ T-Tex executes ioctl calls to interact with the kernel. Hence, for convenience w
 ### Testing various scenarios
 
 After secruity evaluation is completed and code regions are generated.
-* Uncomment (set-val)[https://github.ncsu.edu/smittal6/ttex_benchmark/blob/master/Makefile#L30] plugin to stop further evaluation
+* Uncomment [set-val](https://github.ncsu.edu/smittal6/ttex_benchmark/blob/master/Makefile#L30) plugin to stop further evaluation
 * Comment [ompt_processLogData](https://github.com/mittalswastik/ttex_benchmark/blob/75a9c89654c614d5d57fbd8a5f757d233b1ffc44/ttex_pass_update.cpp#L1626) for any further region generation
 
 #### Testing attack scenarios 
