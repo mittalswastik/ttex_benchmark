@@ -21,9 +21,10 @@ T-Tex executes ioctl calls to interact with the kernel. Hence, for convenience w
 * Phase1 of T-Tex does not provide any analysis from the profiler to the llvm-pass
   * Update [Makefile](https://github.com/mittalswastik/ttex_benchmark/blob/c8ba0f1a783428993f248cd4cd33815597282592/Makefile#L30) - Remove the check-file & set-val plugin
 * Update the paths in the Makefile for [clang](https://github.com/mittalswastik/ttex_benchmark/blob/c8ba0f1a783428993f248cd4cd33815597282592/Makefile#L10)
-* Either copy omp.h & omp_tools.h (generally in ~/llvm-project/build/projects/openmp/runtime/src/) generated after compiling llvm to the same directory as the benchmark or add path using -I flag
+* Either copy omp.h & omp_tools.h (should be in ~/ttex_implementation/build/projects/openmp/runtime/src/) generated after compiling llvm to the same directory as the benchmark or add path using -I flag
   * omp.h - OpenMP runtime library
-  * omp-tools.h - OpenMP ompt profiler tool 
+  * omp-tools.h - OpenMP ompt profiler tool
+* run ``make`` 
  
 ### Compilation Phase2-n
 
