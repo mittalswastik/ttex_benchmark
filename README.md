@@ -33,7 +33,7 @@ T-Tex executes ioctl calls to interact with the kernel. Hence, for convenience w
 
 * Compile and execute the Linux-kernel-Module [code](https://github.com/mittalswastik/ttex_kernel/tree/master) for timers and also kernel timer crediting.
 * run ``export LD_LIBRARY_PATH=/path-to-llvm-lib:$LD_LIBRARY_PATH
-  * Llvm lib path is generally ~/llvm-project/build/lib
+  * Llvm lib path should be ~/ttex/ttex_implementation/build/lib
 * run ``./kernel > output_1.txt`` \
     ``cat output_1.txt | grep "##################################### evaluated time value in ns is" > output_time_1.txt`` \
     ``sed 's/[^0-9]*\([0-9]\+\)[^0-9]*/\1/g' output_time_1.txt  > ttex_1``
